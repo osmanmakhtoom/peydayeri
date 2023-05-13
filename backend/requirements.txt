@@ -1,0 +1,41 @@
+# Django & DRF & JWT
+django==4.2.1
+djangorestframework==3.14.0
+djangorestframework-simplejwt==5.2.2
+# Control Cors headers
+django_cors_headers==4.0.0
+# Postgres client and dependencies
+psycopg==3.1.9
+psycopg-binary==3.1.9
+psycopg-pool==3.1.7
+# Load dotenv files
+python-dotenv==1.0.0
+# Gunicorn server
+gunicorn==20.1.0
+# Colorize test outputs
+redgreenunittest==0.1.1
+# Django redis client
+django-redis==5.2.0
+# ELK stack & Filebeat
+python-logstash==0.4.8
+django-elasticsearch-dsl==7.3
+django-elasticsearch-dsl-drf==0.22.5
+# Json formatter
+json-log-formatter==0.5.2
+# Image processing
+Pillow==9.5.0
+# Date time
+arrow==1.2.3
+# MinIO Object storage client
+django-minio-storage==0.5.2
+# Celery
+celery==5.2.7
+redis==4.5.5
+librabbitmq==2.0.0
+msgpack==1.0.5
+django-celery-results==2.5.1
+flower==1.2.0
+# ZarrinPal
+django-zarinpal==1.0.1
+# IPPanel
+ippanel==2.0.7
