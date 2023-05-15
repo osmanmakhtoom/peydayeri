@@ -1,0 +1,230 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    restart: always
+    networks:
+      - nginx_network
+      - app_network
+      - minio_network
+      - database_network
+      - redis_network
+      - rabbit_network
+      - elk
+    expose:
+      - "8000:8000"
+    volumes:
+      - ./backend:/backend
+    command: >
+      sh -c "
+      python wait_for_postgres.py &&
+      gunicorn --reload --access-logfile - --workers 3 --bind 0.0.0.0:8000 apps.core.wsgi:application"
+    depends_on:
+      - postgres
+      - filebeat
+      - redis
+      - minio
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - nginx_network
+    ports:
+      - "8000:8000"
+      - "8080:80"
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    networks:
+      - database_network
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
+    volumes:
+      - minio_storage:/data
+    ports:
+      - "9000:9000"
+    expose:
+      - "9000"
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ADMIN}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+      MINIO_ACCESS_KEY: ${MINIO_STORAGE_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_STORAGE_SECRET_KEY}
+    networks:
+      - minio_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  setup:
+    build:
+      context: setup/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    init: true
+    volumes:
+      - ./setup/entrypoint.sh:/entrypoint.sh:ro,Z
+      - ./setup/lib.sh:/lib.sh:ro,Z
+      - ./setup/roles:/roles:ro,Z
+      - setup:/state:Z
+    environment:
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
+      FILEBEAT_INTERNAL_PASSWORD: ${FILEBEAT_INTERNAL_PASSWORD:-}
+      MONITORING_INTERNAL_PASSWORD: ${MONITORING_INTERNAL_PASSWORD:-}
+      BEATS_SYSTEM_PASSWORD: ${BEATS_SYSTEM_PASSWORD:-}
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  elasticsearch:
+    build:
+      context: elasticsearch/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
+      - elasticsearch:/usr/share/elasticsearch/data:Z
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      node.name: elasticsearch
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
+      discovery.type: single-node
+    networks:
+      - elk
+    restart: unless-stopped
+
+  logstash:
+    build:
+      context: logstash/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
+    ports:
+      - "5044:5044"
+      - "50000:50000/tcp"
+      - "50000:50000/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: -Xms256m -Xmx256m
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+  kibana:
+    build:
+      context: kibana/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
+    ports:
+      - "5601:5601"
+    environment:
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+  filebeat:
+    image: filebeat:${ELASTIC_VERSION}
+    build: ./filebeat
+    restart: always
+    volumes:
+      - logs_volume:/backend/logs
+    command: filebeat -c /filebeat/filebeat.yml -e -d "*" -strict.perms=false
+    depends_on:
+      - logstash
+
+  rabbit:
+    image: rabbitmq:latest
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    networks:
+      - rabbit_network
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  redis:
+    image: redis:latest
+    restart: always
+    networks:
+      - redis_network
+    ports:
+      - "6379:6379"
+
+  celery_worker:
+    build: ./backend
+    restart: always
+    command: sh -c "DJANGO_SETTINGS_MODULE=apps.core.settings celery -A apps.core worker -B --loglevel=INFO"
+    networks:
+      - app_network
+      - redis_network
+      - rabbit_network
+    depends_on:
+      - backend
+      - rabbit
+
+  flower:
+    build: ./backend
+    restart: always
+    command: sh -c "DJANGO_SETTINGS_MODULE=apps.core.settings celery -A apps.core flower --port=5555 --logging=DEBUG --persistent=True --db=flower.db --basic_auth=['admin:123456']"
+    networks:
+      - app_network
+      - redis_network
+      - rabbit_network
+    depends_on:
+      - celery_worker
+
+volumes:
+  db_data:
+  setup:
+  elasticsearch:
+  logs_volume:
+  minio_storage:
+
+networks:
+  rabbit_network:
+    driver: bridge
+  app_network:
+    driver: bridge
+  minio_network:
+    driver: bridge
+  nginx_network:
+    driver: bridge
+  database_network:
+    driver: bridge
+  elk:
+    driver: bridge
+  redis_network:
+    driver: bridge
