@@ -39,7 +39,7 @@ INSTALLED_APPS = [
 ROOT_URLCONF = "apps.core.urls"
 WSGI_APPLICATION = "apps.core.wsgi.application"
 
-AUTH_USER_MODEL = "apps.accounts.models.user.User"
+AUTH_USER_MODEL = "apps.accounts.User"
 
 # Database config
 DATABASES = {
