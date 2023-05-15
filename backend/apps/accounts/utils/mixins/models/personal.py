@@ -13,6 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 class PersonalDetailsMixin(models.Model):
+    class GENDER(models.IntegerChoices):
+        MALE = (1, "male")
+        FEMALE = (2, "female")
+        NOT_SPECIFIED = (3, "not specified")
+
     avatar_validator = AvatarValidator()
 
     firstname = models.CharField(max_length=150, null=True, default="")
@@ -32,6 +37,7 @@ class PersonalDetailsMixin(models.Model):
     city = models.CharField(max_length=100, null=True, blank=True)
     address = models.TextField(blank=True, null=True)
     timezone = models.CharField(max_length=6, blank=True, null=True)
+    gender = models.IntegerField(choices=GENDER, default=GENDER.MALE)
     language = models.CharField(
         max_length=6, blank=True, null=True, default="fa")
 
