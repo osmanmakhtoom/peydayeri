@@ -261,6 +261,10 @@ CELERY_BROKER_URL = env.get("CELERY_BROKER")
 CELERY_RESULT_BACKEND = env.get("CELERY_BACKEND")
 CELERY_CACHE_BACKEND = 'default'
 
+# SMS Panel Configuration
+SMS_PHONE_NUMBER = env.get("SMS_PHONE_NUMBER")
+SMS_CLIENT_ID = env.get("SMS_CLIENT_ID")
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"

@@ -35,6 +35,11 @@ librabbitmq==2.0.0
 msgpack==1.0.5
 django-celery-results==2.5.1
 flower==1.2.0
+# User agents
+PyYAML==6.0
+ua-parser==0.16.1
+user-agents==2.2.0
+django-user-agents==0.4.0
 # ZarrinPal
 django-zarinpal==1.0.1
 # IPPanel
