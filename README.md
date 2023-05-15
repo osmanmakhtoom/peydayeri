@@ -20,5 +20,5 @@ This project is dockerized and uses the technologies below:
 
 You can run it quickly using the below command:
 ```commandline
-docker compose up
+docker compose --env-file ./backend/apps/core/.env up
 ```

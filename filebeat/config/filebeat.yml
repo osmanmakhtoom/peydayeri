@@ -1,0 +1,14 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /logs/*
+  multiline.pattern: '^\['
+  multiline.negate: true
+  multiline.match: after
+  json.keys_under_root: true
+  json.add_error_key: true
+  json.message_key: log
+
+output.logstash:
+  hosts: ["logstash:5044"]
