@@ -7,6 +7,8 @@ from PIL import Image
 
 from django.core.files import File
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 from apps.utils.validators.avatar_validator import AvatarValidator
 
 logger = logging.getLogger(__name__)
@@ -20,9 +22,20 @@ class PersonalDetailsMixin(models.Model):
 
     avatar_validator = AvatarValidator()
 
-    firstname = models.CharField(max_length=150, null=True, default="")
-    lastname = models.CharField(max_length=150, null=True, default="")
+    firstname = models.CharField(
+        verbose_name=_("First name"),
+        max_length=150,
+        null=True,
+        default="",
+    )
+    lastname = models.CharField(
+        verbose_name=_("Last name"),
+        max_length=150,
+        null=True,
+        default="",
+    )
     avatar = models.ImageField(
+        verbose_name=_("Profile picture"),
         upload_to="avatars/%Y/%M/%D/",
         null=True,
         blank=True,
@@ -30,16 +43,57 @@ class PersonalDetailsMixin(models.Model):
             avatar_validator,
         ],
     )
-    avatar_url = models.URLField(null=True, default=None)
-    date_of_born = models.DateTimeField(blank=True, null=True)
-    country = models.CharField(max_length=100, blank=True, null=True)
-    state = models.CharField(max_length=100, blank=True, null=True)
-    city = models.CharField(max_length=100, null=True, blank=True)
-    address = models.TextField(blank=True, null=True)
-    timezone = models.CharField(max_length=6, blank=True, null=True)
-    gender = models.IntegerField(choices=GENDER, default=GENDER.MALE)
+    avatar_url = models.URLField(
+        verbose_name=_("Profile picture URL if from another resource"),
+        null=True,
+        default=None,
+    )
+    date_of_born = models.DateTimeField(
+        verbose_name=_("Birthdate"),
+        blank=True,
+        null=True,
+    )
+    country = models.CharField(
+        verbose_name=_("Country"),
+        max_length=100,
+        blank=True,
+        null=True,
+    )
+    state = models.CharField(
+        verbose_name=_("County"),
+        max_length=100,
+        blank=True,
+        null=True,
+    )
+    city = models.CharField(
+        verbose_name=_("City"),
+        max_length=100,
+        null=True,
+        blank=True,
+    )
+    address = models.TextField(
+        verbose_name=_("Full address"),
+        blank=True,
+        null=True,
+    )
+    timezone = models.CharField(
+        verbose_name=_("TimeZone"),
+        max_length=6,
+        blank=True,
+        null=True,
+    )
+    gender = models.IntegerField(
+        verbose_name=_("Gender"),
+        choices=GENDER,
+        default=GENDER.MALE,
+    )
     language = models.CharField(
-        max_length=6, blank=True, null=True, default="fa")
+        verbose_name=_("Native language code"),
+        max_length=6,
+        blank=True,
+        null=True,
+        default="fa",
+    )
 
     class Meta:
         abstract = True

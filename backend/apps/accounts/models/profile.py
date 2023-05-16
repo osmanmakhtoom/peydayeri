@@ -1,8 +1,10 @@
-from backend.apps.accounts.managers.profile_manager import ProfileManager
-from apps.accounts.utils.mixins.models.contact import ContactInformationMixin
-from apps.accounts.utils.mixins.models.personal import PersonalDetailsMixin
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+from apps.accounts.managers.profile_manager import ProfileManager
+from apps.accounts.utils.mixins.models.contact import ContactInformationMixin
+from apps.accounts.utils.mixins.models.personal import PersonalDetailsMixin
 from apps.utils.mixins.models.timestamp import TimeStampedMixin
 from apps.utils.mixins.models.uuid_mixin import UUIDMixin
 
@@ -10,9 +12,10 @@ from apps.utils.mixins.models.uuid_mixin import UUIDMixin
 class Profile(UUIDMixin, PersonalDetailsMixin, ContactInformationMixin,
               TimeStampedMixin):
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
+        verbose_name=_("Related user"),
+        to=settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="profile"
+        related_name="profile",
     )
 
     objects = ProfileManager()
