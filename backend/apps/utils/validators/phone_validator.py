@@ -2,6 +2,7 @@ import logging
 import re
 
 from django.utils.deconstruct import deconstructible
+
 from apps.utils.exceptions.custom_exceptions import InvalidPhoneNumberException
 
 logger = logging.getLogger(__name__)

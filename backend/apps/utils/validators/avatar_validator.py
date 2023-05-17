@@ -2,6 +2,7 @@ import logging
 import os
 
 from django.utils.deconstruct import deconstructible
+
 from apps.utils.exceptions.custom_exceptions import (InvalidFileExtensionException,
                                                 InvalidFileSizeException)
 
