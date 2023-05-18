@@ -53,35 +53,6 @@ class PersonalDetailsMixin(models.Model):
         blank=True,
         null=True,
     )
-    country = models.CharField(
-        verbose_name=_("Country"),
-        max_length=100,
-        blank=True,
-        null=True,
-    )
-    state = models.CharField(
-        verbose_name=_("County"),
-        max_length=100,
-        blank=True,
-        null=True,
-    )
-    city = models.CharField(
-        verbose_name=_("City"),
-        max_length=100,
-        null=True,
-        blank=True,
-    )
-    address = models.TextField(
-        verbose_name=_("Full address"),
-        blank=True,
-        null=True,
-    )
-    timezone = models.CharField(
-        verbose_name=_("TimeZone"),
-        max_length=6,
-        blank=True,
-        null=True,
-    )
     gender = models.IntegerField(
         verbose_name=_("Gender"),
         choices=GENDER,

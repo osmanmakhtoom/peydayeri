@@ -2,11 +2,15 @@ from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+from apps.utils.mixins.models.timestamp import TimeStampedMixin
+from apps.utils.mixins.models.uuid_mixin import UUIDMixin
 
-class Addresses(models.Model):
+
+class Addresses(UUIDMixin, TimeStampedMixin):
     class TYPES(models.IntegerChoices):
-        FACTOR = (1, "factor")
-        DELIVER = (2, "deliver")
+        HOME = (1, "home")
+        FACTOR = (2, "factor")
+        DELIVER = (3, "deliver")
 
     user = models.ForeignKey(
         verbose_name=_("Related user"),
@@ -14,33 +18,40 @@ class Addresses(models.Model):
         on_delete=models.CASCADE,
         related_name='addresses',
     )
-    country = models.CharField(
-        verbose_name=_("Country name"),
-        max_length=100,
-        blank=True,
-        null=True,
-    )
-    state = models.CharField(
-        verbose_name=_("County name"),
-        max_length=100,
-        blank=True,
-        null=True,
-    )
-    city = models.CharField(
-        verbose_name=_("City name"),
-        max_length=100,
+    timezone = models.ForeignKey(
+        verbose_name=_("TimeZone"),
+        to="apps.accounts.TimeZones",
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
     )
-    village = models.CharField(
-        verbose_name=_("Village name"),
-        max_length=100,
-        default='',
+    country = models.ForeignKey(
+        verbose_name=_("Country"),
+        to="apps.accounts.Countries",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
-    zipcode = models.CharField(
-        verbose_name=_("ZipCode"),
-        max_length=20,
-        default='',
+    county = models.ForeignKey(
+        verbose_name=_("County"),
+        to="apps.accounts.Counties",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    city = models.ForeignKey(
+        verbose_name=_("City"),
+        to="apps.accounts.Cities",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    village = models.ForeignKey(
+        verbose_name=_("Village"),
+        to="apps.accounts.Villages",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     address = models.TextField(
         verbose_name=_("Full address"),
@@ -54,9 +65,9 @@ class Addresses(models.Model):
         default='',
     )
     type = models.IntegerField(
-        verbose_name=_("Address type, Factor or deliver?"),
+        verbose_name=_("Address type, Home, Factor or deliver?"),
         choices=TYPES,
-        default=TYPES.FACTOR,
+        default=TYPES.HOME,
     )
 
     class Meta:
