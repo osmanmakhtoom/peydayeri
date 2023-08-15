@@ -21,8 +21,8 @@ class SendSMSStrategy(SendActivationCodeBaseStrategy):
             manager = VerificationCodeManager(phone)
             if not manager.is_expired:
                 raise APIExceptions(
-                    Warnings.TRY_AGAIN_AFTER_2_MINUTES, 400)
-            client = Client(settings.SMS_CLIENT_CODE)
+                    Warnings.TRY_AGAIN_AFTER_2_MINUTES.value, 400)
+            client = Client(settings.SMS_CLIENT_CODE.value)
             pattern_values = {
                 "name": self.request.user.profile.firstname or
                 self.request.user.username,
@@ -36,8 +36,8 @@ class SendSMSStrategy(SendActivationCodeBaseStrategy):
                 manager.period = 120
                 manager.value = verification_code
                 return Response(
-                    {"message": Success.CODE_SENT_SUCCESSFULLY}, 200)
+                    {"message": Success.CODE_SENT_SUCCESSFULLY.value}, 200)
             except Exception:
-                raise APIExceptions(Alerts.CODE_SENDING_FAILED, 500)
+                raise APIExceptions(Alerts.CODE_SENDING_FAILED.value, 500)
         else:
-            raise APIExceptions(Alerts.INVALID_PHONE_NUMBER, 400)
+            raise APIExceptions(Alerts.INVALID_PHONE_NUMBER.value, 400)

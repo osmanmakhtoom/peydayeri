@@ -1,7 +1,12 @@
 from rest_framework.routers import DefaultRouter
 
-from apps.accounts.api.views import (ActivationViewSet, ProfileView,
-                                RegisterViewSet, SocialAccountsView, UserView)
+from apps.accounts.api.views import (
+    ActivationViewSet,
+    ProfileView,
+    RegisterViewSet,
+    SocialAccountsView,
+    UserView
+)
 from django.urls import path
 
 urlpatterns = [

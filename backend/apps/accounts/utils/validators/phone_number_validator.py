@@ -18,20 +18,20 @@ class PhoneNumberValidator(BaseValidator):
             user_client.ip_address, "phone_activation"
         )
         if brute_force_manager.is_locked:
-            raise APIExceptions(Alerts.YOUR_IP_ADDRESS_LOCKED, 403)
+            raise APIExceptions(Alerts.YOUR_IP_ADDRESS_LOCKED.value, 403)
 
         phone = self.request.data.get("phone", None)
         validator = PhoneValidator()
 
         if phone is None or validator(phone) is False:
             brute_force_manager.check_brute_force(
-                Alerts.INVALID_PHONE_NUMBER, 400)
+                Alerts.INVALID_PHONE_NUMBER.value, 400)
 
         if (
             phone == self.request.user.profile.phone
             and self.request.user.profile.is_phone_activated
         ):
             brute_force_manager.check_brute_force(
-                Alerts.PHONE_NUMBER_ALREADY_ACTIVATED, 400)
+                Alerts.PHONE_NUMBER_ALREADY_ACTIVATED.value, 400)
 
         return True

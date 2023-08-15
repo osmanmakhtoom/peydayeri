@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 
-from apps.accounts.models import * Addresses
+from apps.accounts.models import Addresses
 
 
 class AddressesSerializerV1(ModelSerializer):

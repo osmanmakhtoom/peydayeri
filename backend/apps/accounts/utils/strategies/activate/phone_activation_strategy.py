@@ -24,13 +24,13 @@ class PhoneActivationStrategy(ActivationBaseStrategy):
             if manager.value != self.request.data.get(
                        "verification_code", None):
                 brute_force_manager.check_brute_force(
-                    Alerts.INVALID_VERIFICATION_CODE, 400)
+                    Alerts.INVALID_VERIFICATION_CODE.value, 400)
 
             profile = self.request.user.profile
             profile.phone = phone
             profile.is_phone_activated = True
             profile.save()
 
-            return Response({"message": Success.SUCCESSFULLY_ACTIVATED}, 200)
+            return Response({"message": Success.SUCCESSFULLY_ACTIVATED.value}, 200)
         else:
-            raise APIExceptions(Alerts.INVALID_PHONE_NUMBER, 400)
+            raise APIExceptions(Alerts.INVALID_PHONE_NUMBER.value, 400)

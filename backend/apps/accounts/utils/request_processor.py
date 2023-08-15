@@ -37,7 +37,7 @@ class RequestProcessor:
     def process_registration_request(self) -> Response:
         """ Register user if not already have an account """
         if self.request.user.is_authenticated:
-            raise APIExceptions(Alerts.YOU_ARE_ALREADY_LOGGED_IN, 400)
+            raise APIExceptions(Alerts.YOU_ARE_ALREADY_LOGGED_IN.value, 400)
         user = User.objects.filter(
             username=self.key_lowered_data.get("username"))[0]
         if user:
@@ -45,26 +45,26 @@ class RequestProcessor:
             brute_force_manager = BruteForceManager(
                 user_client.ip_address, self._action)
             brute_force_manager.check_brute_force(
-                Warnings.USER_WITH_THIS_PHONE_NUMBER_ALREADY_EXIST, 400)
+                Warnings.USER_WITH_THIS_PHONE_NUMBER_ALREADY_EXIST.value, 400)
         User.objects.create_user(
             self.key_lowered_data.get("username"),
             self.key_lowered_data.get("password")
         )
-        return Response({"message": Success.REGISTERED_SUCCESSFULLY}, 201)
+        return Response({"message": Success.REGISTERED_SUCCESSFULLY.value}, 201)
 
     def process_send_activation_request(self, manner: str) -> Response:
         """ Send verification code using the given manner """
         result = {
-            "sms": SendSMSStrategy(self.request),
-            "email": SendMailStrategy(self.request),
-        }.get(manner, SendSMSStrategy(self.request))
+            "sms": SendSMSStrategy,
+            "email": SendMailStrategy,
+        }.get(manner, SendSMSStrategy)(self.request)
         verification_code = str(random.randint(111111, 999999))
         return result.send_activation_code(verification_code)
 
     def process_activation_request(self, manner: str) -> Response:
         """ Manage user verification requests using the given manner """
         result = {
-            "email": EmailActivationStrategy(self.request),
-            "phone": PhoneActivationStrategy(self.request),
-        }.get(manner, SendSMSStrategy(self.request))
+            "email": EmailActivationStrategy,
+            "phone": PhoneActivationStrategy,
+        }.get(manner, SendSMSStrategy)(self.request)
         return result.activate()

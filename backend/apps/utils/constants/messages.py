@@ -1,15 +1,15 @@
-from enum import Enum
+from enum import StrEnum
 
 from django.utils.translation import gettext_lazy as _
 
 
-class General(str, Enum):
+class General(StrEnum):
     VERIFICATION_CODE_EMAIL_SUBJECT = _("Peydayeri verification code")
     VERIFICATION_CODE_EMAIL_BODY = _("Peydayeri verification code is below:")
     INFO_EMAIL_ADDRESS = "info@osman-makhtoom.ir"
 
 
-class Success(str, Enum):
+class Success(StrEnum):
     CODE_SENT_SUCCESSFULLY = _("The verification code was sent successfully")
     SUCCESSFULLY_ACTIVATED = _("Your account is verified successfully")
     PLEASE_ENTER_YOUR_PASSWORD = _("Please enter your password")
@@ -18,7 +18,7 @@ class Success(str, Enum):
     LOGGED_OUT_SUCCESSFULLY = _("Successfully logged out")
 
 
-class Alerts(str, Enum):
+class Alerts(StrEnum):
     CODE_SENDING_FAILED = _("Verification code sending failed")
     LOGGING_IN_FAILED = _("Login failed")
     REGISTERING_FAILED = _("Registration failed")
@@ -38,7 +38,7 @@ class Alerts(str, Enum):
     EMAIL_ALREADY_ACTIVATED = _("Email address already activated")
 
 
-class Warnings(str, Enum):
+class Warnings(StrEnum):
     TRY_AGAIN_AFTER_2_MINUTES = _("Try again after 2 minutes")
     TRY_AGAIN_AFTER_5_MINUTES = _("Try again after 5 minutes")
     YOUR_ACCOUNT_WILL_LOCKED_AFTER_3_INVALID_ATTEMPTS = _(

@@ -62,4 +62,4 @@ class BruteForceManager(CacheManager):
             self.set_new_timestamp()
             raise APIExceptions(msg, code)
         else:
-            raise APIExceptions(Alerts.YOUR_IP_ADDRESS_LOCKED, 403)
+            raise APIExceptions(Alerts.YOUR_IP_ADDRESS_LOCKED.value, 403)

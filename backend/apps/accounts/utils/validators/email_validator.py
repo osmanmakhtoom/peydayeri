@@ -21,17 +21,17 @@ class EmailAddressValidator(BaseValidator):
         )
 
         if brute_force_manager.is_locked:
-            raise APIExceptions(Alerts.YOUR_IP_ADDRESS_LOCKED, 403)
+            raise APIExceptions(Alerts.YOUR_IP_ADDRESS_LOCKED.value, 403)
 
         if email is None or validator(email) is False:
             brute_force_manager.check_brute_force(
-                Alerts.INVALID_EMAIL_ADDRESS, 400)
+                Alerts.INVALID_EMAIL_ADDRESS.value, 400)
 
         if (
             email == self.request.user.profile.email
             and self.request.user.profile.is_email_activated
         ):
             brute_force_manager.check_brute_force(
-                Alerts.EMAIL_ALREADY_ACTIVATED, 400)
+                Alerts.EMAIL_ALREADY_ACTIVATED.value, 400)
 
         return True

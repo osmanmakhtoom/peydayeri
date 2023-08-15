@@ -18,25 +18,25 @@ class SendMailStrategy(SendActivationCodeBaseStrategy):
             email = self.request.data.get("email", None)
             manager = VerificationCodeManager(email)
             if not manager.is_expired:
-                raise APIExceptions(Warnings.TRY_AGAIN_AFTER_5_MINUTES, 400)
+                raise APIExceptions(Warnings.TRY_AGAIN_AFTER_5_MINUTES.value, 400)
 
             try:
                 mail_send_result = send_mail(
-                    General.VERIFICATION_CODE_EMAIL_SUBJECT,
-                    General.VERIFICATION_CODE_EMAIL_BODY
+                    General.VERIFICATION_CODE_EMAIL_SUBJECT.value,
+                    General.VERIFICATION_CODE_EMAIL_BODY.value
                     + "\n" + verification_code,
-                    from_email=General.INFO_EMAIL_ADDRESS,
+                    from_email=General.INFO_EMAIL_ADDRESS.value,
                     recipient_list=[
                         email,
                     ],
                 )
                 if mail_send_result == 0:
-                    raise APIExceptions(Alerts.CODE_SENDING_FAILED, 500)
+                    raise APIExceptions(Alerts.CODE_SENDING_FAILED.value, 500)
                 manager.period = 300
                 manager.value = verification_code
                 return Response(
-                    {"message": Success.CODE_SENT_SUCCESSFULLY}, 200)
+                    {"message": Success.CODE_SENT_SUCCESSFULLY.value}, 200)
             except Exception:
-                raise APIExceptions(Alerts.CODE_SENDING_FAILED, 500)
+                raise APIExceptions(Alerts.CODE_SENDING_FAILED.value, 500)
         else:
-            raise APIExceptions(Alerts.INVALID_EMAIL_ADDRESS, 400)
+            raise APIExceptions(Alerts.INVALID_EMAIL_ADDRESS.value, 400)
